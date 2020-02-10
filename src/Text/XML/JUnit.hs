@@ -26,6 +26,7 @@ module Text.XML.JUnit
     failureStackTrace,
     errorMessage,
     errorStackTrace,
+    mapSuiteName,
 
     -- * Helper types
     TestReport,
@@ -98,6 +99,22 @@ inSuite name test@TestReport {outcome', time'} =
       testReport = encodeTestCase test,
       counts = (outcomeCounter outcome') {cumTime = fromMaybe 0 time'}
     }
+
+-- | Map the name of a TestSuite.
+--
+-- @
+--     import Data.Function ((&))
+--
+--     'writeXmlReport' "report.xml"
+--       [ 'passed' "Passed test"
+--           & inSuite "Some test suite"
+--           & mapSuiteName ((<>) "Some Group -> ")
+--       ]
+--
+-- @
+mapSuiteName :: (T.Text -> T.Text) -> TestSuite -> TestSuite
+mapSuiteName f suite@TestSuite {suiteName} =
+  suite {suiteName = f suiteName}
 
 mapTest :: (a -> a) -> TestReport a -> TestReport a
 mapTest f test = test {outcome' = f (outcome' test)}
